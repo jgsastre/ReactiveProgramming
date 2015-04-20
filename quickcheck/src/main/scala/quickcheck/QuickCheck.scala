@@ -61,6 +61,20 @@ abstract class QuickCheckHeap extends Properties("Heap") with IntHeap {
       findMin(i) == min_value
     }
   }
+  
+  property("list") = forAll { list : List[Int] =>
+    val orderedList = list.sorted
+    def create(l : List[Int]) : H = l match {
+      case Nil => empty
+      case x :: xs => insert(x, create(xs))
+    }
+    
+    def check(l : List[Int], h : H) : Boolean = l match {
+      case Nil => isEmpty(h)
+      case x :: xs => (x == findMin(h)) && check(xs, deleteMin(h))
+    }
+    check(orderedList, create(list))
+  }
 
   lazy val genHeap: Gen[H] = for {
     k <- arbitrary[Int]
